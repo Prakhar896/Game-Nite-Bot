@@ -1,6 +1,7 @@
 //Import statements
 const Discord = require('discord.js');
-const start = require('./commands/startnite');
+const startnite = require('./commands/startnite');
+const stopnite = require('./commands/stopnite');
 require('dotenv').config();
 const bot = new Discord.Client()
 
@@ -106,7 +107,7 @@ bot.on('message', msg => {
     }
     switch (args[0]) {
         case 'startnite':
-            start.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
+            startnite.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
                 .then(id => {
                     currentReactiveMessageID = id
                 })
@@ -114,7 +115,17 @@ bot.on('message', msg => {
                     console.log('Error in retrieving reactive message ID: ' + err)
                 })
             break;
-
+        case 'stopnite':
+            stopnite.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
+                .then(status => {
+                    if (status) {
+                        currentReactiveMessageID = undefined
+                        currentParticipants = []
+                    }
+                })
+                .catch(err => {
+                    console.log('Error in retrieving Nite status from stopnite command: ' + err)
+                })
     }
 })
 
