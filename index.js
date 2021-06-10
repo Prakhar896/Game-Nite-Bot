@@ -97,11 +97,16 @@ bot.on('messageReactionRemove', (reaction, user) => {
 bot.on('message', msg => {
     if (!msg.content.startsWith(Prefix)) return
     let args = msg.content.substring(Prefix.length).split(' ')
-    if (msg.guild.id != '807599800379768862' && msg.guild.id != '805723501544603658') return msg.channel.send('Sorry, I only function in specific guiilds.')
-
+    if (/*msg.guild.id != '807599800379768862' &&*/ msg.guild.id != '805723501544603658') return msg.channel.send('Sorry, I only function in specific guiilds.')
+    var activeNite = false
+    if (!currentReactiveMessageID) {
+        activeNite = false
+    } else {
+        activeNite = true
+    }
     switch (args[0]) {
         case 'startnite':
-            start.execute(msg, args, Prefix, bot, Discord, currentParticipants)
+            start.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
                 .then(id => {
                     currentReactiveMessageID = id
                 })
