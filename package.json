@@ -1,0 +1,15 @@
+{
+  "name": "game-nite",
+  "version": "1.0.0",
+  "description": "A special bot for a server that handles Admin stuff for game nights.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Prakhar Trivedi",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0"
+  }
+}
