@@ -1,6 +1,6 @@
 //Import statements
 const Discord = require('discord.js');
-const start = require('./commands/start');
+const start = require('./commands/startnite');
 require('dotenv').config();
 const bot = new Discord.Client()
 
