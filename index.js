@@ -29,7 +29,8 @@ bot.on('messageReactionAdd', (reaction, user) => {
     //Checks
     if (!currentReactiveMessageID) return currentParticipants = []
     if (reaction.message.id != currentReactiveMessageID) return
-
+    if (reaction.emoji.name != '👍🏻') return
+    
     //Adding to participants and giving role
     currentParticipants.push({ name: `${reaction.message.guild.member(user).nickname}`, id: `${user.id}` })
     console.log(currentParticipants)
