@@ -1,5 +1,6 @@
 //Import statements
-const Discord = require('discord.js')
+const Discord = require('discord.js');
+const start = require('./commands/start');
 require('dotenv').config();
 const bot = new Discord.Client()
 
@@ -9,18 +10,79 @@ const Prefix = process.env.PREFIX
 
 //Variables
 var currentParticipants = []
+var currentReactiveMessageID = undefined
+
+//Custom functions
+function participantRemove(idOfUser) { 
+    var newArray = currentParticipants.filter(function(ele){ 
+        return ele.id != idOfUser; 
+    })
+    currentParticipants = newArray
+}
 
 bot.on('ready', () => {
     console.log('Game Nite Bot is online!')
 })
 
+bot.on('messageReactionAdd', (reaction, user) => {
+    //Checks
+    if (!currentReactiveMessageID) return currentParticipants = []
+    if (reaction.message.id != currentReactiveMessageID) return
+
+    //Adding to participants and giving role
+    currentParticipants.push({ name: `${reaction.message.guild.member(user).nickname}`, id: `${user.id}` })
+    console.log(currentParticipants)
+    let userAsMember = reaction.message.guild.member(user)
+    try {
+        const niteRole = reaction.message.guild.roles.cache.find(r => r.id == '852508346216218644' || r.id === '852394228381909005')
+        if (!niteRole) return reaction.message.reply('Sorry, I was not able to locate the Nite Role and assign it to people who reacted to the message.')
+        userAsMember.roles.add(niteRole)
+        .catch(err => {
+            console.log('Error occurred in adding role: ' + err)
+        })
+    } catch (err) {
+        reaction.message.reply('Sorry, I was not able to locate the Nite Role and assign it to people who reacted to the message.')
+        console.log('Error occurred in adding roles to reactions: ' + err)
+    }
+})
+
+bot.on('messageReactionRemove', (reaction, user) => {
+    //Checks
+    if (!currentReactiveMessageID) return currentParticipants = []
+    if (reaction.message.id != currentReactiveMessageID) return
+
+    //Removing from participants and taking role
+    participantRemove(user.id)
+    console.log(currentParticipants)
+    let userAsMember = reaction.message.guild.member(user)
+    try {
+        const niteRole = reaction.message.guild.roles.cache.find(r => r.id == '852508346216218644' || r.id === '852394228381909005')
+        if (!niteRole) return reaction.message.reply('Sorry, I was not able to locate the Nite Role and remove it from people who un-reacted to the message.')
+        userAsMember.roles.remove(niteRole)
+        .catch(err => {
+            console.log('Error occurred in adding role: ' + err)
+        })
+    } catch (err) {
+        reaction.message.reply('Sorry, I was not able to locate the Nite Role and remove it from people who un-reacted to the message.')
+        console.log('Error occurred in adding roles to reactions: ' + err)
+    }
+})
+
 bot.on('message', msg => {
     if (!msg.content.startsWith(Prefix)) return
     let args = msg.content.substring(Prefix.length).split(' ')
-    if (msg.guild.id != '807599800379768862' || msg.guild.id != '805723501544603658') return msg.channel.send('Sorry, I only function in specific guiilds.')
+    if (msg.guild.id != '807599800379768862' && msg.guild.id != '805723501544603658') return msg.channel.send('Sorry, I only function in specific guiilds.')
 
     switch (args[0]) {
-        case 'start':
+        case 'startnite':
+            start.execute(msg, args, Prefix, bot, Discord, currentParticipants)
+            .then(id => {
+                currentReactiveMessageID = id
+            })
+            .catch(err => {
+                console.log('Error in retrieving reactive message ID: ' + err)
+            })
+            break;
 
     }
 })
