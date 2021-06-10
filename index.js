@@ -13,9 +13,9 @@ var currentParticipants = []
 var currentReactiveMessageID = undefined
 
 //Custom functions
-function participantRemove(idOfUser) { 
-    var newArray = currentParticipants.filter(function(ele){ 
-        return ele.id != idOfUser; 
+function participantRemove(idOfUser) {
+    var newArray = currentParticipants.filter(function (ele) {
+        return ele.id != idOfUser;
     })
     currentParticipants = newArray
 }
@@ -37,13 +37,26 @@ bot.on('messageReactionAdd', (reaction, user) => {
         const niteRole = reaction.message.guild.roles.cache.find(r => r.id == '852508346216218644' || r.id === '852394228381909005')
         if (!niteRole) return reaction.message.reply('Sorry, I was not able to locate the Nite Role and assign it to people who reacted to the message.')
         userAsMember.roles.add(niteRole)
-        .catch(err => {
-            console.log('Error occurred in adding role: ' + err)
-        })
+            .catch(err => {
+                console.log('Error occurred in adding role: ' + err)
+            })
     } catch (err) {
         reaction.message.reply('Sorry, I was not able to locate the Nite Role and assign it to people who reacted to the message.')
         console.log('Error occurred in adding roles to reactions: ' + err)
     }
+
+    //Edit and Update Reactive Message
+    var reactiveMessage = reaction.message
+    var newContent = '**New Game Nite! Please react with :thumbsup: below to participate on this new Game Nite!**'
+    var count = 1
+    currentParticipants.forEach(person => {
+        newContent += `\n ${count}. ${person.name}`
+        count += 1
+    })
+    reactiveMessage.edit(newContent)
+        .catch(err => {
+            console.log('Error occurred in editing (add) message: ' + err)
+        })
 })
 
 bot.on('messageReactionRemove', (reaction, user) => {
@@ -59,13 +72,26 @@ bot.on('messageReactionRemove', (reaction, user) => {
         const niteRole = reaction.message.guild.roles.cache.find(r => r.id == '852508346216218644' || r.id === '852394228381909005')
         if (!niteRole) return reaction.message.reply('Sorry, I was not able to locate the Nite Role and remove it from people who un-reacted to the message.')
         userAsMember.roles.remove(niteRole)
-        .catch(err => {
-            console.log('Error occurred in adding role: ' + err)
-        })
+            .catch(err => {
+                console.log('Error occurred in adding role: ' + err)
+            })
     } catch (err) {
         reaction.message.reply('Sorry, I was not able to locate the Nite Role and remove it from people who un-reacted to the message.')
         console.log('Error occurred in adding roles to reactions: ' + err)
     }
+
+    //Edit and Update Message
+    var reactiveMessage = reaction.message
+    var newContent = '**New Game Nite! Please react with :thumbsup: below to participate on this new Game Nite!**'
+    var count = 1
+    currentParticipants.forEach(person => {
+        newContent += `\n ${count}. ${person.name}`
+        count += 1
+    })
+    reactiveMessage.edit(newContent)
+        .catch(err => {
+            console.log('Error occurred in editing (remove) message: ' + err)
+        })
 })
 
 bot.on('message', msg => {
@@ -76,12 +102,12 @@ bot.on('message', msg => {
     switch (args[0]) {
         case 'startnite':
             start.execute(msg, args, Prefix, bot, Discord, currentParticipants)
-            .then(id => {
-                currentReactiveMessageID = id
-            })
-            .catch(err => {
-                console.log('Error in retrieving reactive message ID: ' + err)
-            })
+                .then(id => {
+                    currentReactiveMessageID = id
+                })
+                .catch(err => {
+                    console.log('Error in retrieving reactive message ID: ' + err)
+                })
             break;
 
     }
