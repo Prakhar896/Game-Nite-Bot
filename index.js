@@ -1,5 +1,6 @@
 //Import statements
 const Discord = require('discord.js');
+const kick = require('./commands/kick');
 const startnite = require('./commands/startnite');
 const stopnite = require('./commands/stopnite');
 require('dotenv').config();
@@ -30,7 +31,7 @@ bot.on('messageReactionAdd', (reaction, user) => {
     if (!currentReactiveMessageID) return currentParticipants = []
     if (reaction.message.id != currentReactiveMessageID) return
     if (reaction.emoji.name != '👍🏻') return
-    
+
     //Adding to participants and giving role
     currentParticipants.push({ name: `${reaction.message.guild.member(user).nickname}`, id: `${user.id}` })
     console.log(currentParticipants)
@@ -65,6 +66,7 @@ bot.on('messageReactionRemove', (reaction, user) => {
     //Checks
     if (!currentReactiveMessageID) return currentParticipants = []
     if (reaction.message.id != currentReactiveMessageID) return
+    if (reaction.emoji.name != '👍🏻') return
 
     //Removing from participants and taking role
     participantRemove(user.id)
@@ -99,7 +101,7 @@ bot.on('messageReactionRemove', (reaction, user) => {
 bot.on('message', msg => {
     if (!msg.content.startsWith(Prefix)) return
     let args = msg.content.substring(Prefix.length).split(' ')
-    if (/*msg.guild.id != '807599800379768862' &&*/ msg.guild.id != '805723501544603658') return msg.channel.send('Sorry, I only function in specific guiilds.')
+    if (msg.guild.id != '807599800379768862' && msg.guild.id != '805723501544603658') return msg.channel.send('Sorry, I only function in specific guiilds.')
     var activeNite = false
     if (!currentReactiveMessageID) {
         activeNite = false
@@ -127,6 +129,9 @@ bot.on('message', msg => {
                 .catch(err => {
                     console.log('Error in retrieving Nite status from stopnite command: ' + err)
                 })
+            break;
+        case 'kick':
+            kick.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
     }
 })
 
