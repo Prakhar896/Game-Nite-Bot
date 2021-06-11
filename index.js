@@ -132,6 +132,7 @@ bot.on('message', msg => {
             break;
         case 'kick':
             kick.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
+            
     }
 })
 
