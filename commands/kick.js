@@ -4,7 +4,7 @@ require('dotenv').config();
 module.exports = {
     name: 'stopnite',
     description: 'Starts participation list with which people react to a message to enter game nite.',
-    async execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite) {
+    async execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, reactiveMessageID) {
         if (!msg.guild.member(msg.author).hasPermission('ADMINISTRATOR')) return msg.reply(`:negative_squared_cross_mark: You do not have Admin permissions.`)
         if (!activeNite) return msg.reply('Sorry, no Nite events for you to kick participants from.')
 
@@ -37,8 +37,18 @@ module.exports = {
             newParticipants = participantRemove(currentParticipants, userAsMember.id)
 
             //Edit message and remove name
-
-
+            var reactiveMessage = msg.channel.messages.cache.get(reactiveMessageID)
+            if (!reactiveMessage) return msg.reply('COuld not get reactive message. Please ensure you are using this command in the channel which has the reactive message.')
+            var newContent = '**New Game Nite! Please react with :thumbsup: below to participate on this new Game Nite!**'
+            var count = 1
+            newParticipants.forEach(person => {
+                newContent += `\n ${count}. ${person.name}`
+                count += 1
+            })
+            reactiveMessage.edit(newContent)
+                .catch(err => {
+                    console.log('Error occurred in editing (add) message: ' + err)
+                })
 
             //Finalisation message
             msg.reply(`Successfully kicked <@${userAsMember.id}>!`)

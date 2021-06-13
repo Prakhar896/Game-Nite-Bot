@@ -108,6 +108,7 @@ bot.on('message', msg => {
     } else {
         activeNite = true
     }
+    msg.channel.messages.cache.find(m => m.id === currentReactiveMessageID)
     switch (args[0]) {
         case 'startnite':
             startnite.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
@@ -131,8 +132,8 @@ bot.on('message', msg => {
                 })
             break;
         case 'kick':
-            kick.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
-            
+            kick.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, currentReactiveMessageID)
+            break;
     }
 })
 
