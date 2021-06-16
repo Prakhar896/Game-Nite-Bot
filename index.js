@@ -5,6 +5,8 @@ const startnite = require('./commands/startnite');
 const stopnite = require('./commands/stopnite');
 require('dotenv').config();
 const bot = new Discord.Client()
+const emojiRandom = require('emoji-random');
+const startmvp = require('./commands/startmvp');
 
 //Bot Stuff
 const token = process.env.DISCORD_TOKEN
@@ -22,6 +24,8 @@ function participantRemove(idOfUser) {
     currentParticipants = newArray
 }
 
+//Event handlers
+
 bot.on('ready', () => {
     console.log('Game Nite Bot is online!')
 })
@@ -33,7 +37,8 @@ bot.on('messageReactionAdd', (reaction, user) => {
     if (reaction.emoji.name != '👍🏻') return
 
     //Adding to participants and giving role
-    currentParticipants.push({ name: `${reaction.message.guild.member(user).nickname}`, id: `${user.id}` })
+    var randomEmoji = emojiRandom.random()
+    currentParticipants.push({ name: `${reaction.message.guild.member(user).nickname}`, id: `${user.id}`, emoji: randomEmoji })
     console.log(currentParticipants)
     let userAsMember = reaction.message.guild.member(user)
     try {
@@ -133,6 +138,9 @@ bot.on('message', msg => {
             break;
         case 'kick':
             kick.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, currentReactiveMessageID)
+            break;
+        case 'startmvp':
+            startmvp.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, currentReactiveMessageID)
             break;
     }
 })

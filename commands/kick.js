@@ -2,8 +2,8 @@ const Discord = require('discord.js')
 require('dotenv').config();
 
 module.exports = {
-    name: 'stopnite',
-    description: 'Starts participation list with which people react to a message to enter game nite.',
+    name: 'kick',
+    description: 'Kicks participant from current Nite event.',
     async execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, reactiveMessageID) {
         if (!msg.guild.member(msg.author).hasPermission('ADMINISTRATOR')) return msg.reply(`:negative_squared_cross_mark: You do not have Admin permissions.`)
         if (!activeNite) return msg.reply('Sorry, no Nite events for you to kick participants from.')
