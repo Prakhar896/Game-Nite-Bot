@@ -24,6 +24,7 @@ module.exports = {
         var embedTitle = '**MVP Voting has started! Please vote the participant you think performed the best by reacting with the corresponding emoji.**'
         var messageEmbed = new Discord.MessageEmbed()
             .setTitle(embedTitle)
+            .setColor("RANDOM")
             .setFooter('You have 5 minutes until voting ends.');
 
         currentParticipants.forEach(person => {
@@ -42,7 +43,30 @@ module.exports = {
             })
             var scores = Array(currentParticipants.length)
             setTimeout(() => {
-                console.log(mvpMesssage.reactions.cache)
+                //look at reactions and find out whos winner
+                var loopCount = 0
+                currentParticipants.forEach(person => {
+                    scores[loopCount] = mvpMesssage.reactions.cache.find(r => r.emoji.name == discord_emoji_converter.getEmoji(person.emoji)).count
+                })
+                
+                ///finding out winner
+                var highestCount = 0
+                var highestCountIndex = 0
+                var count = 0
+                scores.forEach(score => {
+                    if (score > highestCount) {
+                        highestCount = score
+                        highestCountIndex = count
+                    }
+                    count += 1
+                })
+
+                ///get member
+                var winner = msg.guild.member(currentParticipants[highestCountIndex].id)
+                if (!winner) return channel.send('Something went wrong in getting the winner.')
+                channel.send(`:tada: :tada: :tada: ***CONGRATS <@${winner.id}>!! You are the MVP of this Game Nite with a score of ${highestCount} votes!!!***`)
+
+                //done
             }, 3000)
         } catch (err) {
             console.log(err)
