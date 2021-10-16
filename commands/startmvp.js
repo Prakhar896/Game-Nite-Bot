@@ -47,6 +47,7 @@ module.exports = {
                 var loopCount = 0
                 currentParticipants.forEach(person => {
                     scores[loopCount] = mvpMesssage.reactions.cache.find(r => r.emoji.name == discord_emoji_converter.getEmoji(person.emoji)).count
+                    loopCount += 1
                 })
                 
                 ///finding out winner
@@ -67,7 +68,7 @@ module.exports = {
                 channel.send(`:tada: :tada: :tada: ***CONGRATS <@${winner.id}>!! You are the MVP of this Game Nite with a score of ${highestCount} votes!!!***`)
 
                 //done
-            }, 3000)
+            }, 10000)
         } catch (err) {
             console.log(err)
         }
