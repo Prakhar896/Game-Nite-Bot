@@ -118,6 +118,7 @@ bot.on('message', msg => {
         case 'startnite':
             startnite.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
                 .then(id => {
+                    if (typeof id != "string") return
                     currentReactiveMessageID = id
                 })
                 .catch(err => {
@@ -141,6 +142,16 @@ bot.on('message', msg => {
             break;
         case 'startmvp':
             startmvp.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, currentReactiveMessageID)
+            break;
+        case 'status':
+            var activeMessage = 'Not Active'
+            if (activeNite) {
+                activeMessage = 'Active'
+            }
+            msg.reply(`Bot Status: Online, Nite Event: ${activeMessage}, Bot Uptime: ${bot.uptime / 1000} seconds.`)
+                .catch(err => {
+                    console.log("Error in sending status message: " + err)
+                })
             break;
     }
 })
