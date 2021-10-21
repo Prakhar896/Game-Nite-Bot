@@ -9,6 +9,7 @@
   "author": "Prakhar Trivedi",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.23.0",
     "discord-emoji-converter": "^1.0.0",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",

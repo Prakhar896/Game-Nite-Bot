@@ -68,7 +68,7 @@ module.exports = {
                 channel.send(`:tada: :tada: :tada: ***CONGRATS <@${winner.id}>!! You are the MVP of this Game Nite with a score of ${highestCount} votes!!!***`)
 
                 //done
-            }, 10000)
+            }, 300000)
         } catch (err) {
             console.log(err)
         }

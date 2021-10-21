@@ -1,5 +1,6 @@
 //Import statements
 const Discord = require('discord.js');
+const axios = require('axios');
 const kick = require('./commands/kick');
 const startnite = require('./commands/startnite');
 const stopnite = require('./commands/stopnite');
@@ -103,10 +104,35 @@ bot.on('messageReactionRemove', (reaction, user) => {
         })
 })
 
-bot.on('message', msg => {
+bot.on('message', async msg => {
     if (!msg.content.startsWith(Prefix)) return
     let args = msg.content.substring(Prefix.length).split(' ')
     if (msg.guild.id != '807599800379768862' && msg.guild.id != '805723501544603658') return msg.channel.send('Sorry, I only function in specific guiilds.')
+
+    //Check downtime
+    try {
+      await axios({
+        method: 'get',
+        url: process.env.DT_SERVER_STATUS_URL
+      })
+      .then(async (response) => {
+        if (response.statusText == 'OK' && (response.data == 'True' || response.data == 'False')) {
+          if (response.data == 'True') {
+            msg.reply('**You caught us at an unfortunate time.** This service is currently experiencing downtime. We will be back up shortly.')
+            return
+          }
+        } else {
+          console.log('Error in properly getting downtime status from the server.')
+          msg.reply('There was an error in properly getting downtime status. This service cannot continue to operate until a proper status is received. Please try again.')
+          return
+        }
+      })
+    } catch (err) {
+      console.log('Error in checking downtime: ' + err)
+      msg.reply('Sorry, I was unable to check downtime status for this service. Please try again.')
+      return
+    }
+
     var activeNite = false
     if (!currentReactiveMessageID) {
         activeNite = false
