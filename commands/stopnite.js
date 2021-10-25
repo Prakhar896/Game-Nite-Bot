@@ -4,7 +4,7 @@ require('dotenv').config();
 module.exports = {
     name: 'stopnite',
     description: 'Stops participation list with which people react to a message to enter game nite.',
-    async execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite) {
+    async execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, db, updateDatabase, deleteAllKeys) {
         if (!msg.guild.member(msg.author).hasPermission('ADMINISTRATOR')) return msg.reply(`:negative_squared_cross_mark: You do not have Admin permissions.`)
         if (!activeNite) return msg.reply('Sorry, no Nite events are currently active for you to stop.')
 

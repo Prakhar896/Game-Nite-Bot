@@ -48,6 +48,22 @@ async function deleteAllKeys(db) {
   return successful
 }
 
+function showAllKeysAndValues() {
+  db.list()
+    .then(keys => {
+      console.log(keys)
+      var values = []
+      for (key of keys) {
+        db.get(key)
+        .then(value => {
+          console.log(value)
+          values.push(value)
+        })
+      }
+      console.log(values)
+    })
+}
+
 //Bot Stuff
 const token = process.env.DISCORD_TOKEN
 const Prefix = process.env.PREFIX
@@ -55,32 +71,38 @@ const Prefix = process.env.PREFIX
 //Variables
 var currentParticipants = []
 var currentReactiveMessageID = ''
-console.log(currentReactiveMessageID)
+console.log('ID: ' + currentReactiveMessageID)
+console.log(currentParticipants)
 ///Update variables according to database
-try {
-  db.list()
-    .then(async keys => {
-      for (key of keys) {
-        if (key == 'currentParticipants') {
-          await db.get(key)
-            .then(value => {
-              currentParticipants = value
-            })
-        } else if (key == 'currentReactiveMessageID') {
-          await db.get(key)
-            .then(value => {
-              currentReactiveMessageID = value
-            })
+async function checkDatabase() {
+  try {
+    db.list()
+      .then(async keys => {
+        for (key of keys) {
+          if (key == 'currentParticipants') {
+            await db.get(key)
+              .then(value => {
+                currentParticipants = value
+              })
+          } else if (key == 'currentReactiveMessageID') {
+            await db.get(key)
+              .then(value => {
+                currentReactiveMessageID = value
+              })
+          }
         }
-      }
-    })
-} catch (err) {
-  console.log('Error in initialising variables with data from database: ' + err)
+      })
+  } catch (err) {
+    console.log('Error in initialising variables with data from database: ' + err)
+  }
 }
 
-///Update database with variables
-updateDatabase('currentParticipants', currentParticipants, db)
-updateDatabase('currentReactiveMessageID', currentReactiveMessageID, db)
+checkDatabase()
+  .then(() => {
+    ///Update database with variables
+    updateDatabase('currentParticipants', currentParticipants, db)
+    updateDatabase('currentReactiveMessageID', currentReactiveMessageID, db)
+  })
 
 //Custom functions
 function participantRemove(idOfUser) {
@@ -98,13 +120,18 @@ bot.on('ready', () => {
 
 bot.on('messageReactionAdd', (reaction, user) => {
   //Checks
-  if (!currentReactiveMessageID) return currentParticipants = []
+  if (!currentReactiveMessageID) {
+    currentParticipants = []
+    updateDatabase('currentParticipants', currentParticipants, db)
+    return
+  }
   if (reaction.message.id != currentReactiveMessageID) return
   if (reaction.emoji.name != '👍🏻') return
 
   //Adding to participants and giving role
   var randomEmoji = emojiRandom.random()
   currentParticipants.push({ name: `${reaction.message.guild.member(user).nickname}`, id: `${user.id}`, emoji: randomEmoji })
+  updateDatabase('currentParticipants', currentParticipants, db)
   console.log(currentParticipants)
   let userAsMember = reaction.message.guild.member(user)
   try {
@@ -135,12 +162,17 @@ bot.on('messageReactionAdd', (reaction, user) => {
 
 bot.on('messageReactionRemove', (reaction, user) => {
   //Checks
-  if (!currentReactiveMessageID) return currentParticipants = []
+  if (!currentReactiveMessageID) {
+    currentParticipants = []
+    updateDatabase('currentParticipants', currentParticipants, db)
+    return
+  }
   if (reaction.message.id != currentReactiveMessageID) return
   if (reaction.emoji.name != '👍🏻') return
 
   //Removing from participants and taking role
   participantRemove(user.id)
+  updateDatabase('currentParticipants', currentParticipants, db)
   console.log(currentParticipants)
   let userAsMember = reaction.message.guild.member(user)
   try {
@@ -207,7 +239,7 @@ bot.on('message', async msg => {
   msg.channel.messages.cache.find(m => m.id === currentReactiveMessageID)
   switch (args[0]) {
     case 'startnite':
-      startnite.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
+      startnite.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, db, updateDatabase, deleteAllKeys)
         .then(id => {
           if (typeof id != "string") return
           currentReactiveMessageID = id
@@ -217,11 +249,13 @@ bot.on('message', async msg => {
         })
       break;
     case 'stopnite':
-      stopnite.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite)
+      stopnite.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, db, updateDatabase, deleteAllKeys)
         .then(status => {
           if (status) {
             currentReactiveMessageID = undefined
             currentParticipants = []
+            updateDatabase('currentReactiveMessageID', currentReactiveMessageID, db)
+            updateDatabase('currentParticipants', currentParticipants, db)
           }
         })
         .catch(err => {
@@ -230,6 +264,11 @@ bot.on('message', async msg => {
       break;
     case 'kick':
       kick.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, currentReactiveMessageID)
+        .then(newParticipants => {
+          if (typeof newParticipants != 'object') return
+          currentParticipants = newParticipants
+          updateDatabase('currentParticipants', currentParticipants, db)
+        })
       break;
     case 'startmvp':
       startmvp.execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, currentReactiveMessageID)
