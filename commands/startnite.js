@@ -4,7 +4,7 @@ require('dotenv').config();
 module.exports = {
   name: 'startnite',
   description: 'Starts participation list with which people react to a message to enter game nite.',
-  async execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, db, updateDatabase, deleteAllKeys) {
+  async execute(msg, args, Prefix, bot, Discord, currentParticipants, activeNite, updateDatabase, showAllKeysAndValues, generateNewDataObject) {
     if (!msg.guild.member(msg.author).hasPermission('ADMINISTRATOR')) return msg.reply(`:negative_squared_cross_mark: You do not have Admin permissions.`)
     if (activeNite) return msg.reply('Sorry, a Nite event is already active. Please de-activate the current Nite event before starting a new one.')
     var channelID = args[1]
@@ -39,8 +39,7 @@ module.exports = {
         msg.channel.send('An error occurred in creating the message.')
         console.log('Error in Reacting to Message: ' + err)
       })
-    updateDatabase('currentReactiveMessageID', reactiveMessage.id, db)
-    updateDatabase('currentParticipants', [], db)
+    updateDatabase(generateNewDataObject([], reactiveMessage.id))
     return reactiveMessage.id
   }
 }
