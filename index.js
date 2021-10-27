@@ -130,7 +130,7 @@ bot.on('messageReactionAdd', (reaction, user) => {
       continue
     }
   }
-  currentParticipants.push({ name: `${reaction.message.guild.member(user).nickname}`, id: `${user.id}`, emoji: randomEmoji })
+  currentParticipants.push({ name: `${reaction.message.guild.member(user).user.username}`, id: `${user.id}`, emoji: randomEmoji })
   updateDatabase(generateNewDataObject(currentParticipants, currentReactiveMessageID))
   console.log(currentParticipants)
   let userAsMember = reaction.message.guild.member(user)
