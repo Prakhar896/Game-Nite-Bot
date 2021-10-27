@@ -7,7 +7,9 @@ const kick = require('./commands/kick');
 const startnite = require('./commands/startnite');
 const stopnite = require('./commands/stopnite');
 require('dotenv').config();
-const bot = new Discord.Client()
+const bot = new Discord.Client({
+  partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER', 'REACTION'] 
+})
 const emojiRandom = require('emoji-random');
 const startmvp = require('./commands/startmvp');
 
@@ -113,7 +115,6 @@ bot.on('messageReactionAdd', (reaction, user) => {
     updateDatabase(generateNewDataObject([], ""))
     return
   }
-  console.log(reaction.message.id)
   if (reaction.message.id != currentReactiveMessageID) return
   if (reaction.emoji.name != '👍🏻') return
 
