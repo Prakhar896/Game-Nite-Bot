@@ -207,6 +207,7 @@ bot.on('message', async msg => {
   if (msg.guild.id != '807599800379768862' && msg.guild.id != '805723501544603658') return msg.channel.send('Sorry, I only function in specific guiilds.')
 
   //Check downtime
+  var isDowntime = false
   try {
     await axios({
       method: 'get',
@@ -216,6 +217,7 @@ bot.on('message', async msg => {
         if (response.statusText == 'OK' && (response.data == 'True' || response.data == 'False')) {
           if (response.data == 'True') {
             msg.reply('**You caught us at an unfortunate time.** This service is currently experiencing downtime. We will be back up shortly.')
+            isDowntime = true
             return
           }
         } else {
@@ -227,6 +229,9 @@ bot.on('message', async msg => {
   } catch (err) {
     console.log('Error in checking downtime: ' + err)
     msg.reply('Sorry, I was unable to check downtime status for this service. Please try again.')
+    return
+  }
+  if (isDowntime) {
     return
   }
 
